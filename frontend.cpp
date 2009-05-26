@@ -21,10 +21,6 @@
 
 #include "frontend.h"
 #include <QVBoxLayout>
-#include <QProcess>
-#include <QDebug>
-
-#define BUF_SIZE 256
 
 Frontend::Frontend(QWidget* parent)
 	: QWidget(parent)
@@ -42,25 +38,20 @@ Frontend::Frontend(QWidget* parent)
 	layout->addWidget(status);
 	setLayout(layout);
 
+	transcoder = new Transcoder(QString("test.flv"));
+
 	// when user clicks "Convert", start transcoding
 	connect(convert, SIGNAL(released()), this, SLOT(transcode()));
+	connect(transcoder, SIGNAL(statusUpdate(QString)),
+		this, SLOT(updateStatus(QString)));
 }
 
 void Frontend::transcode()
 {
-	char buf[BUF_SIZE];
-	QProcess* proc = new QProcess;
+	transcoder->start();
+}
 
-	proc->setReadChannel(QProcess::StandardError);
-	proc->start("ffmpeg2theora", QStringList() << "--frontend"
-		<< "test.flv");
-
-	proc->waitForStarted();
-	proc->waitForReadyRead();
-
-	while (proc->readLine(buf, BUF_SIZE) > 0) {
-		status->setText(QString(buf));
-		qDebug() << buf;
-		proc->waitForReadyRead();
-	}
+void Frontend::updateStatus(QString statusText)
+{
+	status->setText(statusText);
 }

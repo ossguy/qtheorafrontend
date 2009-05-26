@@ -1,5 +1,5 @@
 /*
- * frontend.h - frontend widget declarations
+ * transcoder.cpp - transcoder thread implementation
  * This file is part of QTheoraFrontend.
  *
  * Copyright (C) 2009  Denver Gingerich <denver@ossguy.com>
@@ -19,31 +19,30 @@
  *
  */
 
-#ifndef H_FRONTEND
-#define H_FRONTEND
-
 #include "transcoder.h"
-#include <QWidget>
-#include <QLabel>
-#include <QPushButton>
+#include <QProcess>
 
-class Frontend : public QWidget
+Transcoder::Transcoder(QString file, QObject* parent)
+	: QThread(parent)
+	, input_filename(file)
 {
-	Q_OBJECT
+}
 
-public:
-	Frontend(QWidget* parent = 0);
+void Transcoder::run()
+{
+	QProcess* proc = new QProcess;
 
-public slots:
-	void transcode();
-	void updateStatus(QString statusText);
+	proc->setReadChannel(QProcess::StandardError);
+	proc->start("ffmpeg2theora", QStringList() << "--frontend"
+		<< input_filename);
 
-private:
-	QLabel* instructions;
-	QPushButton* convert;
-	QLabel* status;
+	proc->waitForStarted();
+	proc->waitForReadyRead();
 
-	Transcoder* transcoder;
-};
-
-#endif // H_FRONTEND
+	while (proc->readLine(buf, BUF_SIZE) > 0) {
+		if (QString(buf).startsWith("f2t")) {
+			emit statusUpdate(QString(buf));
+		}
+		proc->waitForReadyRead();
+	}
+}

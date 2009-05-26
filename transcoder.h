@@ -1,5 +1,5 @@
 /*
- * frontend.h - frontend widget declarations
+ * transcoder.h - transcoder thread declarations
  * This file is part of QTheoraFrontend.
  *
  * Copyright (C) 2009  Denver Gingerich <denver@ossguy.com>
@@ -19,31 +19,29 @@
  *
  */
 
-#ifndef H_FRONTEND
-#define H_FRONTEND
+#ifndef H_TRANSCODER
+#define H_TRANSCODER
 
-#include "transcoder.h"
-#include <QWidget>
-#include <QLabel>
-#include <QPushButton>
+#include <QThread>
 
-class Frontend : public QWidget
+#define BUF_SIZE 256
+
+class Transcoder : public QThread
 {
 	Q_OBJECT
 
 public:
-	Frontend(QWidget* parent = 0);
+	Transcoder(QString input, QObject* parent = 0);
 
-public slots:
-	void transcode();
-	void updateStatus(QString statusText);
+signals:
+	void statusUpdate(QString status);
+
+protected:
+	void run();
 
 private:
-	QLabel* instructions;
-	QPushButton* convert;
-	QLabel* status;
-
-	Transcoder* transcoder;
+	QString input_filename;
+	char buf[BUF_SIZE];
 };
 
-#endif // H_FRONTEND
+#endif // H_TRANSCODER

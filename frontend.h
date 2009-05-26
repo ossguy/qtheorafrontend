@@ -24,14 +24,22 @@
 
 #include <QWidget>
 #include <QLabel>
+#include <QPushButton>
 
 class Frontend : public QWidget
 {
+	Q_OBJECT
+
 public:
 	Frontend(QWidget* parent = 0);
 
+public slots:
+	void transcode();
+
 private:
 	QLabel* instructions;
+	QPushButton* convert;
+	QLabel* status;
 };
 
 #endif // H_FRONTEND

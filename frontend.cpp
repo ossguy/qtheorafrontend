@@ -30,7 +30,7 @@ Frontend::Frontend(QWidget* parent)
 	status = new QLabel;
 
 	instructions->setText(tr("Instructions will go here."));
-        instructions->setWordWrap(true);
+	instructions->setWordWrap(true);
 
 	QVBoxLayout* layout = new QVBoxLayout;
 	layout->addWidget(instructions);
